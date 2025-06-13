@@ -7,10 +7,9 @@ from cvzone.HandTrackingModule import HandDetector
 cap = cv2.VideoCapture(0)   # 0 is the id no for webcam
 detector = HandDetector(maxHands=1)
 
-
 counter = 0
 offset = 20
-folder = "C:\SIGN LANG"
+folder = "C:\SIGN LANG\O"
 
 while True:
     success, img = cap.read() 
@@ -24,7 +23,6 @@ while True:
         imgCrop = img[y-offset:y+h+offset,x-offset:x+w+offset]
 
         imgCropShape = imgCrop.shape
-
 
         #next we are gonna try to resize the image so it fits in the box better
 
@@ -48,13 +46,14 @@ while True:
 
 
 
-
         cv2.imshow('ImageCrop', imgCrop)
         cv2.imshow('ImageWhite', imgWhite)
 
     cv2.imshow('Image', img)
     key = cv2.waitKey(1)    # 1ms delay
     if key == ord("s"):
+        counter += 1
         cv2.imwrite(f'{folder}/Image_{time.time()}.jpg', imgWhite)
+        print(counter)
 
-#idea - convert to drums and music later on
+#abey chalja yaarrrr
