@@ -4,15 +4,20 @@ import numpy as np
 import time
 from cvzone.HandTrackingModule import HandDetector
 
+#Importing classifier 
+from cvzone.ClassificationModule import Classifier
 
 cap = cv2.VideoCapture(0)   # 0 is the id no for webcam
 detector = HandDetector(maxHands=1)
 
-counter = 0
+#Adding the classifier
+
+
+
+classifier = Classifier("Model/keras_model.h5","Model/labels.txt")
+
 offset = 20
-folder = "C:\SIGN LANG\X"
-
-
+folder = "C:\SIGN LANG\O"
 
 while True:
     success, img = cap.read() 
@@ -38,6 +43,12 @@ while True:
             wGap = math.ceil((300-wCalc)/2)
             #imgWhite[0:imgResizeShape[0],0:imgResizeShape[1]] = imgResize
             imgWhite[:,wGap:wCalc+wGap] = imgResize #center aligned
+
+            #CLASSIFICATION
+
+            prediction, index = classifier.getPrediction(imgWhite)
+            print(prediction,index)
+
         else:
             k = 300/w      #imgsize/height
             hCalc = math.ceil(k*h) #calculated width
@@ -47,16 +58,20 @@ while True:
             #imgWhite[0:imgResizeShape[0],0:imgResizeShape[1]] = imgResize
             imgWhite[:,hGap:hCalc+hGap] = imgResize #center aligned
 
+            #CLASSIFICATION
 
+            prediction, index = classifier.getPrediction(imgWhite)
+            print(prediction,index)
+            
 
         cv2.imshow('ImageCrop', imgCrop)
         cv2.imshow('ImageWhite', imgWhite)
 
     cv2.imshow('Image', img)
-    key = cv2.waitKey(1)    # 1ms delay
-    if key == ord("s"):
-        counter += 1
-        cv2.imwrite(f'{folder}/Image_{time.time()}.jpg', imgWhite)
-        print(counter)
+    cv2.waitKey(1)    # 1ms delay
 
-#abey chalja yaaaar
+#74 DAYS MORE TO GETTING A LAPTOPPPPP YAYYYYYY
+# 148 HOURS TO GO
+
+#day1 - 2hrs 16minutes
+#day 2 - 
