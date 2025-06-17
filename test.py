@@ -12,16 +12,23 @@ detector = HandDetector(maxHands=1)
 
 #Adding the classifier
 
-
-
 classifier = Classifier("Model/keras_model.h5","Model/labels.txt")
 
 offset = 20
 folder = "C:\SIGN LANG\O"
 
-while True:
+detect = True
+
+
+while detect:
     success, img = cap.read() 
     hands, img = detector.findHands(img) 
+    cv2.imshow('Image', img)
+    key = cv2.waitKey(1)    # 1ms delay
+    if key == 32:
+        print("Stopping.....")
+        detect = False
+
     if hands:           #if hand is detected
         hand = hands[0]
         x,y,w,h = hand['bbox']
@@ -47,7 +54,7 @@ while True:
             #CLASSIFICATION
 
             prediction, index = classifier.getPrediction(imgWhite)
-            print(prediction,index)
+            
 
         else:
             k = 300/w      #imgsize/height
@@ -61,17 +68,18 @@ while True:
             #CLASSIFICATION
 
             prediction, index = classifier.getPrediction(imgWhite)
-            print(prediction,index)
             
 
         cv2.imshow('ImageCrop', imgCrop)
         cv2.imshow('ImageWhite', imgWhite)
 
-    cv2.imshow('Image', img)
-    cv2.waitKey(1)    # 1ms delay
 
-#74 DAYS MORE TO GETTING A LAPTOPPPPP YAYYYYYY
-# 148 HOURS TO GO
+    
 
-#day1 - 2hrs 16minutes
-#day 2 - 
+
+#73 DAYS MORE TO GETTING A LAPTOPPPPP YAYYYYYY
+# 145 HOURS TO GO
+
+#day1 - 2hrs 36minutes
+#day 2 - 6 HOURS MANIFEST 
+#DAY3 - Make an amazing frontend and Readme write... full manifestationn

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sign Language Detection</title>
+    <script>
+        function startStream() {
+            document.getElementById('videoFeed').src = "/video";
+        }
+
+        function stopStream() {
+            document.getElementById('videoFeed').src = "";
+        }
+    </script>
+</head>
+<body>
+    <h1>Live Webcam Stream</h1>
+    <button onclick="startStream()">Start</button>
+    <button onclick="stopStream()">Stop</button>
+    <br><br>
+    <img id="videoFeed" width="720" height="560">
+</body>
+</html>

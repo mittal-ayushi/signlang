@@ -10,8 +10,7 @@ detector = HandDetector(maxHands=1)
 
 counter = 0
 offset = 20
-folder = "C:\SIGN LANG\X"
-
+folder = "data\G"
 
 
 while True:
