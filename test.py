@@ -66,7 +66,6 @@ while detect:
             imgWhite[:,hGap:hCalc+hGap] = imgResize #center aligned
 
             #CLASSIFICATION
-
             prediction, index = classifier.getPrediction(imgWhite)
             
 
@@ -75,11 +74,3 @@ while detect:
 
 
     
-
-
-#73 DAYS MORE TO GETTING A LAPTOPPPPP YAYYYYYY
-# 145 HOURS TO GO
-
-#day1 - 2hrs 36minutes
-#day 2 - 6 HOURS MANIFEST 
-#DAY3 - Make an amazing frontend and Readme write... full manifestationn

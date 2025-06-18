@@ -1,22 +1,425 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Sign Language Detection</title>
-    <script>
-        function startStream() {
-            document.getElementById('videoFeed').src = "/video";
+    <title>Sign Detection</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        function stopStream() {
-            document.getElementById('videoFeed').src = "";
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #1a1a1a;
+            line-height: 1.6;
         }
-    </script>
+
+        .container {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 60px;
+            max-width: 1000px;
+            width: 90%;
+            margin: 40px auto;
+            box-shadow: 
+                0 20px 25px -5px rgba(0, 0, 0, 0.1),
+                0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            animation: fadeIn 0.8s ease-out;
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: #666;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .description {
+            font-size: 1.1rem;
+            color: #555;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 60px 0;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #2d3748;
+        }
+
+        .feature-text {
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .instructions-section {
+            background: linear-gradient(135deg, #e6fffa 0%, #f0fff4 100%);
+            padding: 40px;
+            border-radius: 20px;
+            margin: 50px 0;
+            border: 1px solid #bee3f8;
+        }
+
+        .instructions-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 30px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .best-practices {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .practice-item {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #48bb78;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        .practice-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .practice-icon {
+            font-size: 1.2rem;
+            margin-right: 10px;
+        }
+
+        .tech-stack {
+            background: linear-gradient(135deg, #fef5e7 0%, #fff2d9 100%);
+            padding: 40px;
+            border-radius: 20px;
+            margin: 50px 0;
+            border: 1px solid #fed7aa;
+        }
+
+        .tech-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .tech-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .tech-item {
+            background: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            color: #2d3748;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        .tech-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .cta-section {
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        .start-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: #ffffff;
+            padding: 20px 40px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .start-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .start-button:active {
+            transform: translateY(-1px);
+        }
+
+        .start-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .start-button:hover::before {
+            left: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px 30px;
+                margin: 20px auto;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .description {
+                font-size: 1rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .feature-card {
+                padding: 25px;
+            }
+            
+            .instructions-section,
+            .tech-stack {
+                padding: 30px 25px;
+            }
+            
+            .best-practices {
+                grid-template-columns: 1fr;
+            }
+            
+            .start-button {
+                padding: 16px 32px;
+                font-size: 1rem;
+            }
+        }
+
+        /* Animations */
+        .feature-card {
+            animation: slideUp 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .feature-card:nth-child(1) { animation-delay: 0.1s; }
+        .feature-card:nth-child(2) { animation-delay: 0.2s; }
+        .feature-card:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Focus states for accessibility */
+        .start-button:focus {
+            outline: 3px solid rgba(102, 126, 234, 0.5);
+            outline-offset: 2px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Live Webcam Stream</h1>
-    <button onclick="startStream()">Start</button>
-    <button onclick="stopStream()">Stop</button>
-    <br><br>
-    <img id="videoFeed" width="720" height="560">
+    <div class="container">
+
+        <div class="header">
+            <h1>SignLang</h1>
+            <p class="subtitle">Real-Time Sign Language Detection</p>
+            <p class="description">
+                Recognising sign language alphabets using computer vision and deep learning. 
+            </p>
+        </div>
+        
+        <div class="cta-section">
+            <button class="start-button" onclick="window.location.href='/imp'">
+                GO TO DETECTOR
+            </button>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3 class="feature-title">AI-Powered Recognition</h3>
+                <p class="feature-text">
+                    Uses a pre-trained deep learning model generated with Google's Teachable Machine, 
+                    trained on a custom dataset of alphabetic hand signs for accurate gesture recognition.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📹</div>
+                <h3 class="feature-title">Real-Time Processing</h3>
+                <p class="feature-text">
+                    Leverages OpenCV library for live video processing, providing instant text conversion 
+                    as you perform sign language gestures in front of your camera.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3 class="feature-title">Custom Dataset</h3>
+                <p class="feature-text">
+                    Built with a manually collected dataset covering all alphabetic hand signs, 
+                    ensuring comprehensive coverage of sign language alphabet recognition.
+                </p>
+            </div>
+        </div>
+
+        <div class="instructions-section">
+            <h2 class="instructions-title">
+                📋 How to Use SignLang
+            </h2>
+            <p style="text-align: center; margin-bottom: 30px; font-size: 1.1rem; color: #4a5568;">
+                Follow these best practices for optimal sign language detection accuracy:
+            </p>
+            
+            <div class="best-practices">
+                <div class="practice-item">
+                    <span class="practice-icon">✋</span>
+                    <strong>Clear Hand Position:</strong> Position your hand clearly within the camera frame, ensuring all fingers are visible.
+                </div>
+                
+                <div class="practice-item">
+                    <span class="practice-icon">🖼️</span>
+                    <strong>Plain Background:</strong> Use a plain, contrasting background when possible to improve detection accuracy.
+                </div>
+                
+                <div class="practice-item">
+                    <span class="practice-icon">⏱️</span>
+                    <strong>Hold Steady:</strong> Hold each gesture steady for 1-2 seconds to allow the model to process and recognize the sign.
+                </div>
+                
+                <div class="practice-item">
+                    <span class="practice-icon">💡</span>
+                    <strong>Good Lighting:</strong> Ensure adequate lighting on your hands for better visibility and recognition accuracy.
+                </div>
+            </div>
+        </div>
+
+        <div class="tech-stack">
+            <h2 class="tech-title">🛠️ Technology Stack</h2>
+            <div class="tech-items">
+                <span class="tech-item">OpenCV</span>
+                <span class="tech-item">TensorFlow/Keras</span>
+                <span class="tech-item">Google Teachable Machine</span>
+                <span class="tech-item">Python</span>
+                <span class="tech-item">Computer Vision</span>
+                <span class="tech-item">Deep Learning</span>
+            </div>
+        </div>
+
+    </div>
 </body>
 </html>

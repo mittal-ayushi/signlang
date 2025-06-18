@@ -1,6 +1,0 @@
-TO DO
-
-Data collection
-Teachable Machine
-Flask
-Frontend
