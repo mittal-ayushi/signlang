@@ -2,4 +2,4 @@ Flask
 opencv-python
 cvzone
 numpy
-tensorflow
+tensorflow==2.12.0
