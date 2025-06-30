@@ -6,6 +6,9 @@ import os
 from cvzone.HandTrackingModule import HandDetector
 from cvzone.ClassificationModule import Classifier
 
+# import os to set env variable
+import os
+
 app = Flask(__name__)
 cap = None
 streaming = False
@@ -83,5 +86,4 @@ def shutdown():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 8080))
     app.run(host="0.0.0.0", port=port, debug=True)
-
 

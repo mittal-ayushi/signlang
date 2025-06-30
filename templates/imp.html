@@ -273,7 +273,7 @@
         </div>
         <br>
         <div class="video-container">
-            <img id="videoFeed" src="" alt="Video Feed">
+            <video id="videoFeed" src="" alt="Video Feed" autoplay muted></video>
             <div class="video-overlay" id="videoOverlay">
                 <div>Click "Start" to begin detection</div>
             </div>
@@ -287,6 +287,9 @@
 
     <script>
         let isRunning = false;
+        let stream = null;
+
+        const videoFeed = document.getElementById("videoFeed"); // get the element from which we get user's camera feed
 
         function start() {
             if (isRunning) return;
@@ -303,11 +306,23 @@
             
             setTimeout(() => {
                 document.getElementById("videoFeed").src = "/video";
-                statusIndicator.classList.add("active");
-                videoOverlay.classList.add("hidden");
-                startBtn.innerHTML = "Detection Active";
-                startBtn.disabled = false;
-                statusText.textContent = "Detection is running";
+                navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+                    .then((mediaStream) => {
+                        statusIndicator.classList.add("active");
+                        videoOverlay.classList.add("hidden");
+                        stream = mediaStream;
+                        videoFeed.srcObject = stream;
+                        startBtn.innerHTML = "Detection Active";
+                        startBtn.disabled = false;
+                        statusText.textContent = "Detection is running";
+                    })
+                    .catch((error) => {
+                        console.error("Error accessing camera:", error);
+                        statusText.textContent = "Error accessing camera";
+                        startBtn.innerHTML = "Start Detection";
+                        startBtn.disabled = false;
+                        isRunning = false;
+                    });
             }, 1000);
         }
 
@@ -324,21 +339,36 @@
             stopBtn.disabled = true;
             statusText.textContent = "Stopping detection...";
             
-            fetch('/shutdown').then(() => {
-                document.getElementById("videoFeed").src = "";
-                statusIndicator.classList.remove("active");
-                videoOverlay.classList.remove("hidden");
-                videoOverlay.innerHTML = '<div>Detection stopped. Click "Start" to resume.</div>';
-                startBtn.innerHTML = "Start Detection";
-                stopBtn.innerHTML = "Stop Detection";
-                stopBtn.disabled = false;
-                statusText.textContent = "Ready to start detection";
-                isRunning = false;
-            }).catch(() => {
-                stopBtn.innerHTML = "Stop Detection";
-                stopBtn.disabled = false;
-                statusText.textContent = "Error stopping detection";
-            });
+            if(stream) {
+                stream.getTracks().forEach(track => track.stop());
+                videoFeed.srcObject = null;
+            }
+
+            videoFeed.srcObject = null;
+            statusIndicator.classList.remove("active");
+            videoOverlay.classList.remove("hidden");
+            videoOverlay.innerHTML = '<div>Detection stopped. Click "Start" to resume.</div>';
+            startBtn.innerHTML = "Start Detection";
+            stopBtn.innerHTML = "Stop Detection";
+            stopBtn.disabled = false;
+            statusText.textContent = "Ready to start detection";
+            isRunning = false;
+
+            // fetch('/shutdown').then(() => {
+            //     document.getElementById("videoFeed").src = "";
+            //     statusIndicator.classList.remove("active");
+            //     videoOverlay.classList.remove("hidden");
+            //     videoOverlay.innerHTML = '<div>Detection stopped. Click "Start" to resume.</div>';
+            //     startBtn.innerHTML = "Start Detection";
+            //     stopBtn.innerHTML = "Stop Detection";
+            //     stopBtn.disabled = false;
+            //     statusText.textContent = "Ready to start detection";
+            //     isRunning = false;
+            // }).catch(() => {
+            //     stopBtn.innerHTML = "Stop Detection";
+            //     stopBtn.disabled = false;
+            //     statusText.textContent = "Error stopping detection";
+            // });
         }
 
         // Enhanced visual feedback

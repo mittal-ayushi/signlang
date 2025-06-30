@@ -20,4 +20,3 @@ COPY . .
 
 # run your app
 CMD ["gunicorn", "app:app"]
-
