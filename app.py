@@ -2,6 +2,7 @@ from flask import Flask, render_template, Response
 import cv2
 import numpy as np
 import math
+import os
 from cvzone.HandTrackingModule import HandDetector
 from cvzone.ClassificationModule import Classifier
 
@@ -80,5 +81,7 @@ def shutdown():
     return "Stream stopped"
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port, debug=True)
+
 
