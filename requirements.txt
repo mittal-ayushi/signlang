@@ -3,3 +3,4 @@ opencv-python
 cvzone
 numpy
 tensorflow==2.12.0
+mediapipe
