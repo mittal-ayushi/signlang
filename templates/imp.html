@@ -274,6 +274,8 @@
         <br>
         <div class="video-container">
             <video id="videoFeed" src="" alt="Video Feed" autoplay muted></video>
+            <img id="processedFrame" style="width:100%;max-width:400px;display:block;margin-top:16px;" alt="Processed Frame"/>
+            <canvas id="hiddenCanvas" style="display:none"></canvas>
             <div class="video-overlay" id="videoOverlay">
                 <div>Click "Start" to begin detection</div>
             </div>
@@ -283,6 +285,10 @@
         <div class="status-text" id="statusText">
             Ready to start detection
         </div>
+
+        <!-- debugging purposes -->
+        <div id="console">
+        </div>
     </div>
 
     <script>
@@ -290,6 +296,37 @@
         let stream = null;
 
         const videoFeed = document.getElementById("videoFeed"); // get the element from which we get user's camera feed
+        const canvas = document.getElementById('hiddenCanvas');
+        const ctx = canvas.getContext('2d')
+
+        async function sendFrameData() {
+            const consoleEle = document.getElementById("console");
+
+            canvas.width = videoFeed.videoWidth;
+            canvas.height = videoFeed.videoHeight;
+            ctx.drawImage(videoFeed, 0, 0, canvas.width, canvas.height);
+
+            const url = canvas.toDataURL('image/jpeg', 0.5);
+
+            const response = await fetch('/video', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ image: url })
+            })
+            
+            const result = await response.blob();
+            if (result) {
+                console.log("Frame data sent successfully");
+                let imgURL = URL.createObjectURL(result);
+                document.getElementById('processedFrame').src = imgURL;
+                // consoleEle.innerHTML += `<p>Frame data sent successfully: ${result.message}</p>`;
+            } else {
+                console.error("Error sending frame data:", result.error);
+                consoleEle.innerHTML += `<p style="color: red;">Error sending frame data: ${result.error}</p>`;
+            }
+        }
 
         function start() {
             if (isRunning) return;
@@ -299,13 +336,13 @@
             const statusIndicator = document.getElementById("statusIndicator");
             const videoOverlay = document.getElementById("videoOverlay");
             const statusText = document.getElementById("statusText");
-            
+
             startBtn.innerHTML = 'Starting... <div class="loading"></div>';
             startBtn.disabled = true;
             statusText.textContent = "Initializing camera feed...";
             
             setTimeout(() => {
-                document.getElementById("videoFeed").src = "/video";
+                // document.getElementById("videoFeed").src = "/video";
                 navigator.mediaDevices.getUserMedia({ video: true, audio: false })
                     .then((mediaStream) => {
                         statusIndicator.classList.add("active");
@@ -315,6 +352,11 @@
                         startBtn.innerHTML = "Detection Active";
                         startBtn.disabled = false;
                         statusText.textContent = "Detection is running";
+                        setInterval(() => {
+                            if (isRunning) {
+                                sendFrameData();
+                            }
+                        }, 1000); // Send frame data every second
                     })
                     .catch((error) => {
                         console.error("Error accessing camera:", error);
@@ -353,22 +395,6 @@
             stopBtn.disabled = false;
             statusText.textContent = "Ready to start detection";
             isRunning = false;
-
-            // fetch('/shutdown').then(() => {
-            //     document.getElementById("videoFeed").src = "";
-            //     statusIndicator.classList.remove("active");
-            //     videoOverlay.classList.remove("hidden");
-            //     videoOverlay.innerHTML = '<div>Detection stopped. Click "Start" to resume.</div>';
-            //     startBtn.innerHTML = "Start Detection";
-            //     stopBtn.innerHTML = "Stop Detection";
-            //     stopBtn.disabled = false;
-            //     statusText.textContent = "Ready to start detection";
-            //     isRunning = false;
-            // }).catch(() => {
-            //     stopBtn.innerHTML = "Stop Detection";
-            //     stopBtn.disabled = false;
-            //     statusText.textContent = "Error stopping detection";
-            // });
         }
 
         // Enhanced visual feedback
